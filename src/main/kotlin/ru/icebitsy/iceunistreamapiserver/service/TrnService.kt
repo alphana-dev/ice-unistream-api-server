@@ -1,6 +1,5 @@
 package ru.icebitsy.iceunistreamapiserver.service
 
-import jakarta.transaction.Transactional
 import org.springframework.stereotype.Service
 import ru.icebitsy.iceunistreamapiserver.entity.Trn
 import ru.icebitsy.iceunistreamapiserver.entity.TrnStatus
@@ -10,14 +9,7 @@ import java.util.*
 
 
 @Service
-class TrnService(
-    private val trnRepository: TrnRepository,
-//    @Value("\${debtorAgentId}")
-//    val debtorAgentId: String,
-//
-//    @Value("\${debtorAgentBic}")
-//    val debtorAgentBic: String,
-) {
+class TrnService(private val trnRepository: TrnRepository) {
 
     fun registerTrn(requestId: UUID, request: CashToCardRegisterRequest): Trn {
 
