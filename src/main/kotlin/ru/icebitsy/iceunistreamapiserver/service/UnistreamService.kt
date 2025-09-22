@@ -56,9 +56,6 @@ class UnistreamService(
 
 
         // 1) каноничный JSON без пробелов
-        val json = objectMapper
-            .writer().withoutAttribute("pretty") // на всякий случай
-            .withDefaultPrettyPrinter()          // не влияет без pretty
         val compactJson = objectMapper.writeValueAsString(req) // Jackson уже даёт компактный JSON
 
         // 2) Content-MD5
