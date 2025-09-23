@@ -66,7 +66,7 @@ class UnistreamService(
         val date = OffsetDateTime.now(ZoneOffset.UTC).format(DateTimeFormatter.RFC_1123_DATE_TIME)
 
         // 4) PATH-AND-QUERY: декодируем и приводим к нижнему регистру
-        val pathAndQueryLower = "/v2/operations/CashToCard/$id"
+        val pathAndQueryLower = "/v2/operations/cashtocard/$id"
             .let { URLDecoder.decode(it, Charsets.UTF_8) }
             .lowercase()
 
