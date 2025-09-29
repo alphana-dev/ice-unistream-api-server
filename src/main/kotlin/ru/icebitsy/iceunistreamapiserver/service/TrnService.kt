@@ -23,11 +23,11 @@ class TrnService(private val trnRepository: TrnRepository) {
         // регистрируем новую операцию
         val trn = Trn(
             requestUid = requestId,
-            cardNumber = request.cardNumber,
-            recipientFirstName = request.recipientFirstName,
-            recipientLastName = request.recipientLastName,
-            acceptedCurrency = request.acceptedCurrency,
-            amount = request.amount,
+            cardNumber = request.data.cardNumber,
+            recipientFirstName = request.data.recipientFirstName,
+            recipientLastName = request.data.recipientLastName,
+            acceptedCurrency = request.data.acceptedCurrency,
+            amount = request.data.amount,
             status = TrnStatus.New
         )
 
