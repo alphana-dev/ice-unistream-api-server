@@ -16,6 +16,8 @@ interface UnistreamWebClient {
         @RequestBody body: CashToCardRegisterRequest,
         @RequestHeader("Date") date: String,
         @RequestHeader("X-Unistream-Security-PosId") posId: String,
-        @RequestHeader("Authorization") authorization: String
+        @RequestHeader("CONTENT-MD5") contentMd5: String,
+        @RequestHeader("Authorization") authorization: String,
+        @RequestHeader("Accept") accept: String = "application/json"
     ): Any
 }

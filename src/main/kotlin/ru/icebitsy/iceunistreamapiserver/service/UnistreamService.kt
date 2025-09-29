@@ -82,9 +82,13 @@ class UnistreamService(
 
         log.info("stringToSign: $stringToSign")
         // 6) HMAC-SHA256 + Base64
+        val secret = Base64.getDecoder().decode(unistreamProperties.secret)
         val mac = Mac.getInstance("HmacSHA256").apply {
-            init(SecretKeySpec(unistreamProperties.secret.toByteArray(Charsets.UTF_8), "HmacSHA256"))
+            init(SecretKeySpec(secret, "HmacSHA256"))
         }
+//        val mac = Mac.getInstance("HmacSHA256").apply {
+//            init(SecretKeySpec(unistreamProperties.secret.toByteArray(Charsets.UTF_8), "HmacSHA256"))
+//        }
         val signature = Base64.getEncoder().encodeToString(mac.doFinal(stringToSign.toByteArray(Charsets.UTF_8)))
 
 //        "Authorization: UNIHMAC " + APPLICATION_ID + ":" +
@@ -102,6 +106,7 @@ class UnistreamService(
             body = req,
             date = date,
             posId = unistreamProperties.posId,
+            contentMd5 = contentMd5,
             authorization = authorization
         )
         log.debug("cashToCard response = {}", response)
