@@ -5,6 +5,22 @@ spring:
   application:
     name: unistream-api-server
 
+  # Настройки SSL для Unistream API
+  ssl:
+    bundle:
+      jks:
+        unistream-mtls:
+          keystore:
+            location: classpath:certs/cmra_cert.pfx
+            password: oeXzd7w
+            type: PKCS12
+
+  # Настройки базы данных
+  datasource:
+    username: XXI
+    password: NEW8I
+    url: jdbc:oracle:thin:@172.16.0.105:1521:odb12
+
   jpa:
     properties:
       hibernate:
@@ -12,6 +28,13 @@ spring:
 
   jackson:
     time-zone: Europe/Moscow
+
+# Настройки Unistream API
+unistream:
+  base-url: https://slt-test.api.unistream.com
+  pos-id: 596669
+  app-id: 7A6211AB0CC4FBB62C47
+  secret: RGWmdj7N6k0B0gTyl+IFYUVLLoY8FiGwtux7op8sAJLtVv2IOpzInXRnMbUX4pcYU2+DRIrmVEGF3slh
 
 # Настройки прокси сервера (для включения настройки необходимо указать proxy.enabled=true)
 proxy:
