@@ -1,9 +1,7 @@
 package ru.icebitsy.iceunistreamapiserver.web
 
-import com.fasterxml.jackson.annotation.JsonInclude
 import com.fasterxml.jackson.annotation.JsonProperty
 import java.math.BigDecimal
-import java.util.UUID
 
 
 data class ClientContext(
@@ -13,7 +11,6 @@ data class ClientContext(
     val documents: List<String>
 )
 
-@JsonInclude(value = JsonInclude.Include.NON_NULL)
 data class CashToCardRegisterRequestData(
     @JsonProperty("CardNumber")
     val cardNumber: String,
@@ -28,19 +25,18 @@ data class CashToCardRegisterRequestData(
     @JsonProperty("Amount")
     val amount: BigDecimal,
     @JsonProperty("WithdrawCurrency")
-    val withdrawCurrency: String?=null,
+    val withdrawCurrency: String = "",
     @JsonProperty("FundsSource")
-    val fundsSource: String?=null,
+    val fundsSource: String = "",
     @JsonProperty("OperationPurpose")
-    val operationPurpose: String?=null,
+    val operationPurpose: String = "",
     @JsonProperty("OperationAim")
-    val operationAim: String?=null
+    val operationAim: String = ""
 )
 
-@JsonInclude(value = JsonInclude.Include.NON_NULL)
 data class CashToCardRegisterRequest(
     @JsonProperty("clientContext")
-    val clientContext: ClientContext?=null,
+    val clientContext: ClientContext,
     @JsonProperty("data")
     val data: CashToCardRegisterRequestData
 )
