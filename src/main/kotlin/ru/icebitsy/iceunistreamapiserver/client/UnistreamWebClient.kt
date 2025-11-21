@@ -10,8 +10,9 @@ import java.util.*
 
 @HttpExchange(accept = ["application/json"], contentType = "application/json")
 interface UnistreamWebClient {
-    @PostExchange("/v2/operations/cashtocard/{id}")
-    fun cashToCard(
+    @PostExchange("/v2/operations/{operation}/{id}")
+    fun unistreamOperation(
+        @PathVariable operation: String,
         @PathVariable id: UUID,
         @RequestBody body: CashToCardRegisterRequest,
         @RequestHeader("Date") date: String,

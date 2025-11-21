@@ -23,9 +23,10 @@ class UnistreamService(
     private val objectMapper: ObjectMapper, // возьмётся из Spring (Jackson)
 ) {
 
-    fun cashToCard(
+    fun toUnistreamOperation(
         id: UUID,
-        req: CashToCardRegisterRequest
+        req: CashToCardRegisterRequest,
+        urlOperation: String
     ): Any {
 //        VERB
 //        CONTENT-MD5
@@ -43,16 +44,16 @@ class UnistreamService(
 //        Значение каждого заголовка начинается с символа "\n"
 
 
-/*//////////////
-        "Authorization: UNIHMAC " + APPLICATION_ID + ":" +
+        /*//////////////
+                "Authorization: UNIHMAC " + APPLICATION_ID + ":" +
 
-                base64(hmac-sha256(APPLICATION_SECRET,
-                    to-upper(VERB) + "\n"
-                            + CONTENT-MD5 + "\n"
-                            + DATE + "\n"
-                            + to-lower(url-decode(PATH-AND-QUERY))
-                            + X-UNISTREAM-HEADERS ))
- */////////
+                        base64(hmac-sha256(APPLICATION_SECRET,
+                            to-upper(VERB) + "\n"
+                                    + CONTENT-MD5 + "\n"
+                                    + DATE + "\n"
+                                    + to-lower(url-decode(PATH-AND-QUERY))
+                                    + X-UNISTREAM-HEADERS ))
+         */////////
 
 
         // 1) каноничный JSON без пробелов
@@ -66,7 +67,7 @@ class UnistreamService(
         val date = OffsetDateTime.now(ZoneOffset.UTC).format(DateTimeFormatter.RFC_1123_DATE_TIME)
 
         // 4) PATH-AND-QUERY: декодируем и приводим к нижнему регистру
-        val pathAndQueryLower = "/v2/operations/cashtocard/$id"
+        val pathAndQueryLower = "/v2/operations/$urlOperation/$id"
             .let { URLDecoder.decode(it, Charsets.UTF_8) }
             .lowercase()
 
@@ -101,7 +102,8 @@ class UnistreamService(
 
         val authorization = "UNIHMAC ${unistreamProperties.appId}:$signature"
 
-        val response = api.cashToCard(
+        val response = api.unistreamOperation(
+            operation = urlOperation,
             id = id,
             body = req,
             date = date,

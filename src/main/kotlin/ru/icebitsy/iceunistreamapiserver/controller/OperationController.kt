@@ -9,30 +9,30 @@ import org.springframework.web.bind.annotation.PathVariable
 import org.springframework.web.bind.annotation.PostMapping
 import org.springframework.web.bind.annotation.RequestBody
 import org.springframework.web.bind.annotation.RestController
-import org.springframework.web.client.HttpClientErrorException.Unauthorized
 import org.springframework.web.reactive.function.client.WebClientResponseException
-import ru.icebitsy.iceunistreamapiserver.entity.Trn
-import ru.icebitsy.iceunistreamapiserver.entity.TrnStatus
-import ru.icebitsy.iceunistreamapiserver.service.TrnService
 import ru.icebitsy.iceunistreamapiserver.service.UnistreamService
 import ru.icebitsy.iceunistreamapiserver.web.CashToCardRegisterRequest
 import java.util.*
 
 @RestController
 @Validated
-class OperationController(private val trnService: TrnService,
+class OperationController( //private val trnService: TrnService,
     private val unistreamService: UnistreamService) {
 
     /**
      * Регистрация операции перевода карта-карта
      */
-    @PostMapping("/{requestId}")
-    fun cashToCardRegister(@PathVariable requestId: UUID, @Valid @RequestBody cashToCardRegisterRequest: CashToCardRegisterRequest)
+    @PostMapping("/{requestId}/{urlOperation}")
+    fun operationRegister(@PathVariable requestId: UUID,
+                          @PathVariable urlOperation: String,
+                          @Valid @RequestBody cashToCardRegisterRequest: CashToCardRegisterRequest)
+
         : ResponseEntity<Any> {
         log.info("call cashToCardRegister cashToCardRegisterRequest = $cashToCardRegisterRequest")
 
         try {
-            val rrrr = unistreamService.cashToCard(
+            val rrrr = unistreamService.toUnistreamOperation(
+                urlOperation = urlOperation,
                 id = requestId,
                 req = cashToCardRegisterRequest
             )
