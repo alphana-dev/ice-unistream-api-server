@@ -7,6 +7,7 @@ import org.springframework.stereotype.Service
 import ru.icebitsy.iceunistreamapiserver.client.UnistreamWebClient
 import ru.icebitsy.iceunistreamapiserver.config.UnistreamProperties
 import ru.icebitsy.iceunistreamapiserver.web.UnistreamOperation
+import java.io.File
 import java.net.URLDecoder
 import java.security.MessageDigest
 import java.time.OffsetDateTime
@@ -21,18 +22,19 @@ class UnistreamService(
     private val api: UnistreamWebClient,
     private val unistreamProperties: UnistreamProperties,
     private val objectMapper: ObjectMapper, // возьмётся из Spring (Jackson)
+    private val signingService: SigningService
 ) {
 
     fun confirmOperation(id: UUID): String {
 
-        val responseStatus = toUnistreamOperation(id, "", "", "get")
+        val responseStatus = toUnistreamOperation( "", "/v2/operations/{$id}", "get")
 
         val unistreamOperation = objectMapper.readValue(responseStatus, UnistreamOperation::class.java)
         if (unistreamOperation.status == "Accepted") {
 
             val fileBytes: ByteArray = try {
 
-                log.info("download {}", unistreamOperation.signDocument);
+                log.info("download {}", unistreamOperation.signDocument)
 
                 val date = OffsetDateTime.now(ZoneOffset.UTC).format(DateTimeFormatter.RFC_1123_DATE_TIME)
                 val pathAndQueryLower = unistreamOperation.signDocument
@@ -84,19 +86,27 @@ class UnistreamService(
                 throw e
             }
 
-            // 2. Кодирование скачанных данных в Base64
-            val base64EncodedString: String = Base64.getEncoder().encodeToString(fileBytes)
+            val fileForSign = File("fileForSign.bin")
+            fileForSign.writeBytes(fileBytes)
+
+
+            val digitalSignature = signingService.sign(fileBytes)
+            val fileSign = File("fileForSign.b64")
+            fileSign.writeBytes(digitalSignature)
+
+            // 5. Преобразование подписи в Base64 для передачи
+            val base64EncodedString = Base64.getEncoder().encodeToString(digitalSignature)
 
             val confirmationBody = "{\"confirmation\":\"$base64EncodedString\"}"
 
-            val confirmationStatus = toUnistreamOperation(id, confirmationBody, "confirm", "post")
+            val confirmationStatus = toUnistreamOperation(confirmationBody, "/v2/operations/$id/confirm", "post")
             return confirmationStatus
         }
-        return responseStatus;
+        return responseStatus
     }
 
     fun toUnistreamOperation(
-        id: UUID,
+//        id: UUID,
         req: String,
         urlOperation: String,
         httpMethod: String
@@ -145,7 +155,7 @@ class UnistreamService(
             contentMd5 = Base64.getEncoder().encodeToString(md5Bytes)
 
 
-            val pathAndQueryLower = "/v2/operations/$urlOperation/$id"
+            val pathAndQueryLower = urlOperation
                 .let { URLDecoder.decode(it, Charsets.UTF_8) }
                 .lowercase()
 
@@ -161,7 +171,7 @@ class UnistreamService(
 
             contentMd5 = ""
 
-            val pathAndQueryLower = "/v2/operations/$id"
+            val pathAndQueryLower = urlOperation
                 .let { URLDecoder.decode(it, Charsets.UTF_8) }
                 .lowercase()
 
@@ -201,8 +211,8 @@ class UnistreamService(
         val response =
             when (httpMethod) {
                 "post" -> api.unistreamOperationPost(
-                    operation = urlOperation,
-                    id = id,
+                    urlOperation = urlOperation.substring(1),
+//                    id = id,
                     body = req,
                     date = date,
                     posId = unistreamProperties.posId,
@@ -211,8 +221,8 @@ class UnistreamService(
                 )
 
                 "get" -> api.unistreamOperationGet(
-                    operation = urlOperation,
-                    id = id,
+                    urlOperation = urlOperation.substring(1),
+//                    id = id,
                     date = date,
                     posId = unistreamProperties.posId,
                     "",

@@ -22,30 +22,38 @@ class OperationController( //private val trnService: TrnService,
     /**
      * Регистрация операции перевода карта-карта
      */
-    @PostMapping("/{httpMethod}/{requestId}/{urlOperation}")
+    @PostMapping("/{requestId}/{operation}")
     fun operationRegister(
-        @PathVariable httpMethod: String,
         @PathVariable requestId: UUID,
-        @PathVariable urlOperation: String,
+        @PathVariable operation: String,
         @Valid @RequestBody requestBody: String
     )
-
             : ResponseEntity<Any> {
-        log.info("call $httpMethod $requestId $urlOperation body = $requestBody")
+        log.info("call $requestId $operation body = $requestBody")
 
         try {
             val rrrr: String
-            if (urlOperation == "confirm")
-                rrrr = unistreamService.confirmOperation(
-                    id = requestId
-                )
-            else
-                rrrr = unistreamService.toUnistreamOperation(
-                    urlOperation = urlOperation,
-                    id = requestId,
-                    req = requestBody,
-                    httpMethod = httpMethod
-                )
+            when(operation) {
+                "confirm" ->  rrrr = unistreamService.confirmOperation(
+                        id = requestId
+                    )
+                "cashtocard" ->
+                    rrrr = unistreamService.toUnistreamOperation(
+                        urlOperation = "/v2/operations/cashtocard/$requestId",
+//                        id = requestId,
+                        req = requestBody,
+                        httpMethod = "post"
+                    )
+                "status" ->
+                    rrrr = unistreamService.toUnistreamOperation(
+                        urlOperation = "/v2/operations/$requestId",
+//                        id = requestId,
+                        req = requestBody,
+                        httpMethod = "get"
+                    )
+                else -> throw IllegalArgumentException("Unsupported operation: $operation")
+
+            }
             log.info("rrrrr = $rrrr")
             return ResponseEntity.ok(rrrr)
         } catch (re: WebClientResponseException) {
