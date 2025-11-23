@@ -11,40 +11,48 @@ import org.springframework.web.bind.annotation.RequestBody
 import org.springframework.web.bind.annotation.RestController
 import org.springframework.web.reactive.function.client.WebClientResponseException
 import ru.icebitsy.iceunistreamapiserver.service.UnistreamService
-import ru.icebitsy.iceunistreamapiserver.web.CashToCardRegisterRequest
 import java.util.*
 
 @RestController
 @Validated
 class OperationController( //private val trnService: TrnService,
-    private val unistreamService: UnistreamService) {
+    private val unistreamService: UnistreamService
+) {
 
     /**
      * Регистрация операции перевода карта-карта
      */
-    @PostMapping("/{requestId}/{urlOperation}")
-    fun operationRegister(@PathVariable requestId: UUID,
-                          @PathVariable urlOperation: String,
-                          @Valid @RequestBody cashToCardRegisterRequest: CashToCardRegisterRequest)
+    @PostMapping("/{httpMethod}/{requestId}/{urlOperation}")
+    fun operationRegister(
+        @PathVariable httpMethod: String,
+        @PathVariable requestId: UUID,
+        @PathVariable urlOperation: String,
+        @Valid @RequestBody requestBody: String
+    )
 
-        : ResponseEntity<Any> {
-        log.info("call cashToCardRegister cashToCardRegisterRequest = $cashToCardRegisterRequest")
+            : ResponseEntity<Any> {
+        log.info("call $httpMethod $requestId $urlOperation body = $requestBody")
 
         try {
-            val rrrr = unistreamService.toUnistreamOperation(
-                urlOperation = urlOperation,
-                id = requestId,
-                req = cashToCardRegisterRequest
-            )
+            val rrrr: String
+            if (urlOperation == "confirm")
+                rrrr = unistreamService.confirmOperation(
+                    id = requestId
+                )
+            else
+                rrrr = unistreamService.toUnistreamOperation(
+                    urlOperation = urlOperation,
+                    id = requestId,
+                    req = requestBody,
+                    httpMethod = httpMethod
+                )
             log.info("rrrrr = $rrrr")
             return ResponseEntity.ok(rrrr)
-        }
-        catch (re: WebClientResponseException) {
+        } catch (re: WebClientResponseException) {
             val errorMessage = re.responseBodyAsByteArray.decodeToString()
             log.error(errorMessage, re)
             return ResponseEntity.ok(errorMessage)
-        }
-        catch (e: Exception) {
+        } catch (e: Exception) {
             log.error("cashToCardRegister exception", e)
             return ResponseEntity.ok(e)
         }
