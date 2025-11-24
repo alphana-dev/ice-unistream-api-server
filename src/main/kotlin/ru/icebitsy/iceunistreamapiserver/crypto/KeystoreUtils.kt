@@ -3,29 +3,33 @@ package ru.icebitsy.iceunistreamapiserver.crypto
 import java.io.InputStream
 import java.security.KeyStore
 import java.security.PrivateKey
+import java.security.cert.X509Certificate
+
+data class KeyCertPair(
+    val privateKey: PrivateKey,
+    val certificateChain: Array<X509Certificate>
+)
 
 object KeystoreUtils {
-
-    // Принимает InputStream для гибкости (из File, из Classpath, откуда угодно)
-    fun loadPrivateKey(
+    // Обновленный метод, возвращающий и ключ, и сертификат
+    fun loadKeyAndCertificate(
         pfxInputStream: InputStream,
         storePassword: String,
         keyAlias: String,
         keyPassword: String
-    ): PrivateKey {
-
+    ): KeyCertPair {
         val keyStore = KeyStore.getInstance("PKCS12")
-
-        // Загрузка KeyStore из потока
         keyStore.load(pfxInputStream, storePassword.toCharArray())
 
-        // ... остальная логика остается той же ...
         val keyEntry = keyStore.getEntry(
             keyAlias,
             KeyStore.PasswordProtection(keyPassword.toCharArray())
         ) as? KeyStore.PrivateKeyEntry
             ?: throw Exception("Не удалось найти PrivateKeyEntry для алиаса: $keyAlias")
 
-        return keyEntry.privateKey
+        // Извлекаем цепочку сертификатов
+        val certs = keyEntry.certificateChain.map { it as X509Certificate }.toTypedArray()
+
+        return KeyCertPair(keyEntry.privateKey, certs)
     }
 }

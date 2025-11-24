@@ -90,7 +90,7 @@ class UnistreamService(
             fileForSign.writeBytes(fileBytes)
 
 
-            val digitalSignature = signingService.sign(fileBytes)
+            val digitalSignature = signingService.signDetachedCms(fileBytes)
             val fileSign = File("fileForSign.b64")
             fileSign.writeBytes(digitalSignature)
 

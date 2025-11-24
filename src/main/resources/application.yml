@@ -45,8 +45,10 @@ proxy:
 # Логирование
 logging:
   level:
-    root: debug
+    root: info
     org.springframework.web.reactive.client: debug
     org.springframework.boot.ssl: info
+    com.zaxxer.hikari: warn
+    ru.icebitsy.iceunistreamapiserver: debug
   file:
     name: unistream-api-server.log
