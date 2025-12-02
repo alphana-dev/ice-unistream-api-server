@@ -33,7 +33,7 @@ class SigningService(
 
             val inputStream = java.io.FileInputStream(keystorePath)
 
-            inputStream?.use { stream ->
+            inputStream.use { stream ->
                 keyCertPair = KeystoreUtils.loadKeyAndCertificate(
                     stream,
                     keystorePassword,

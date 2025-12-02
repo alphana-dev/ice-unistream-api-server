@@ -9,7 +9,7 @@ data class CashToCardRequest(
 )
 
 data class ClientContextDto(
-    val clientId: String? = null,
+    var clientId: String? = null,
     val documents: List<String>? = null
 )
 

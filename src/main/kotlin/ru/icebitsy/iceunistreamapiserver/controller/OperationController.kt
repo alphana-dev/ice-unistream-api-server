@@ -41,14 +41,21 @@ class OperationController( //private val trnService: TrnService,
                     )
                 "cashtocard" -> {
                     // 1. проверяем наличие клиента
-                    val isClientExist = clientService.isClientExist(unistreamService, requestBody)
-                    if (isClientExist) {
-                       // TODO зарегистрировать клиента в Unistream
+                    var clientId = clientService.getClientUIDifClientExist(unistreamService, requestBody)
+                    // 2. если клиента нет, регистрируем
+                    if (clientId.isEmpty()) {
+                        clientId = clientService.registerClient(unistreamService,requestBody)
                     }
+                    // 3. модифицируем запрос (необходимо вставить clientUid)
+                    val requestWithClientID = clientService.setClientUIDIntoRequest(
+                        cardToCardRequest = requestBody,
+                        clientId = clientId
+                    )
+                    // 4. регистрируем операцию
                     rrrr = unistreamService.toUnistreamOperation(
                         urlOperation = "/v2/operations/cashtocard/$requestId",
 //                        id = requestId,
-                        req = requestBody,
+                        req = requestWithClientID,
                         httpMethod = "post"
                     )
                 }

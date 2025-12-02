@@ -69,6 +69,44 @@ class UnistreamClientConfig(
         return factory.createClient(UnistreamWebClient::class.java)
     }
 
+    @Bean
+    fun unistreamWebClientRaw(): WebClient {
+        // Создаем тот же WebClient, но без обертки в HTTP Interface
+        // Это нужно для получения ResponseEntity с HTTP статусом
+        val bundle = sslBundles.getBundle("unistream-mtls")
+        val managers = bundle.managers
+
+        val builder = SslContextBuilder.forClient()
+        managers.keyManagerFactory?.let { builder.keyManager(it) }
+        managers.trustManagerFactory?.let { builder.trustManager(it) }
+        val nettySslContext: SslContext = builder.build()
+
+        val baseClient = HttpClient.create()
+            .option(ChannelOption.CONNECT_TIMEOUT_MILLIS, 10_000)
+            .responseTimeout(Duration.ofSeconds(60))
+            .secure { ssl -> ssl.sslContext(nettySslContext) }
+
+        val httpClient = if (isProxyEnabled) {
+            require(!proxyHost.isNullOrBlank()) { "proxyHost не может быть пустым при включенном прокси" }
+            baseClient.proxy { p ->
+                p.type(ProxyProvider.Proxy.HTTP)
+                    .host(proxyHost)
+                    .port(proxyPort)
+            }
+        } else baseClient
+
+        return WebClient.builder()
+            .baseUrl(baseUrl)
+            .clientConnector(ReactorClientHttpConnector(httpClient))
+            .codecs { it.defaultCodecs().maxInMemorySize(20 * 1024 * 1024) }
+            .filter { req, next ->
+                next.exchange(req)
+                    .retryWhen(Retry.backoff(3, Duration.ofSeconds(1)))
+                    .doOnError { e -> log.error("Ошибка при выполнении запроса: ${e.message}", e) }
+            }
+            .build()
+    }
+
     val log: Logger = LoggerFactory.getLogger(this::class.java)
 }
 
