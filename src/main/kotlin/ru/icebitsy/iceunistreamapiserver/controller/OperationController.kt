@@ -38,6 +38,7 @@ class OperationController( //private val trnService: TrnService,
                         id = requestId
                     )
                 "cashtocard" ->
+                    //TODO добавить проверку что клиент в системе есть, и если его там нет, то зарегистрировать
                     rrrr = unistreamService.toUnistreamOperation(
                         urlOperation = "/v2/operations/cashtocard/$requestId",
 //                        id = requestId,
