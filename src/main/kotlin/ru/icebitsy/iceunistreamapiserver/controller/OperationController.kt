@@ -10,13 +10,15 @@ import org.springframework.web.bind.annotation.PostMapping
 import org.springframework.web.bind.annotation.RequestBody
 import org.springframework.web.bind.annotation.RestController
 import org.springframework.web.reactive.function.client.WebClientResponseException
+import ru.icebitsy.iceunistreamapiserver.service.ClientService
 import ru.icebitsy.iceunistreamapiserver.service.UnistreamService
 import java.util.*
 
 @RestController
 @Validated
 class OperationController( //private val trnService: TrnService,
-    private val unistreamService: UnistreamService
+    private val unistreamService: UnistreamService,
+    private val clientService: ClientService
 ) {
 
     /**
@@ -37,14 +39,19 @@ class OperationController( //private val trnService: TrnService,
                 "confirm" ->  rrrr = unistreamService.confirmOperation(
                         id = requestId
                     )
-                "cashtocard" ->
-                    //TODO добавить проверку что клиент в системе есть, и если его там нет, то зарегистрировать
+                "cashtocard" -> {
+                    // 1. проверяем наличие клиента
+                    val isClientExist = clientService.isClientExist(unistreamService, requestBody)
+                    if (isClientExist) {
+                       // TODO зарегистрировать клиента в Unistream
+                    }
                     rrrr = unistreamService.toUnistreamOperation(
                         urlOperation = "/v2/operations/cashtocard/$requestId",
 //                        id = requestId,
                         req = requestBody,
                         httpMethod = "post"
                     )
+                }
                 "status" ->
                     rrrr = unistreamService.toUnistreamOperation(
                         urlOperation = "/v2/operations/$requestId",
