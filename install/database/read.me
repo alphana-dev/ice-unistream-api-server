@@ -1,0 +1,47 @@
+Инсталляционная сборка ICE-UNISTREAM-API
+
+1. Внимание! Необходимо создать верную view ICE_UNISTREAM_CLIENTS
+возвращающкю верные данные для заполнения запроса на создание клиента в Unestream
+см. документацию
+
+поиск клиента будет осуществляться по серии и номеру документа!
+в итоге мы должны получить запрос вида (и эти данные берутся из настоящей view):
+
+{ 
+  "id": "6edaba0c-ad5a-4ced-a4f2-bc9401efe59e", 
+  "countryOfResidence": "RUS", 
+  "firstName": "Андрей", 
+  "lastName": "Власов", 
+  "middleName": "Петрович", 
+  "gender": "Male", 
+  "birthPlace": "г.Омск", 
+  "birthDate": "1988-01-23T00:00:00", 
+  "phoneNumber": "79299720011", 
+  "taxpayerIndividualIdentificationNumber": "", 
+  "kazId": null, 
+  "address": { 
+    "addressString": "г.Омск, ул.Ленина, 33", 
+    "apartment": "", 
+    "building": "33", 
+    "city": "г.Омск", 
+    "countryCode": "RUS",
+    "house": "25", 
+    "postcode": "644088", 
+    "state": "г.Омск", 
+    "street": "улица Ленина" 
+  }, 
+  "documents": [
+    { 
+      "type": "Passport.RUS", 
+      "fields": { 
+        "Series": "0991", 
+        "Number": "992283", 
+        "Issuer": "МВД г.Омск,отделом №2", 
+        "IssuerDepartmentCode": "550-005", 
+        "IssueDate": "2008-07-07T00:00:00",
+        "expiryDate": "2055-09-23T00:00:00", 
+        "state": "RUS" 
+      } 
+    } 
+  ] 
+}
