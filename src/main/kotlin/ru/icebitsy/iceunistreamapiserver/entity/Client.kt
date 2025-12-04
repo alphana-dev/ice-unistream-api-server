@@ -34,7 +34,7 @@ class Client(
     @Column(name = "PHONE_NUMBER")
     val phoneNumber: String?,
 
-    @Column(name = "TAXPAYER_IDENTIFICATION_NUMBER")
+    @Column(name = "T_I_NUMBER")
     val taxpayerIndividualIdentificationNumber: String?, // ИНН
 
     @Column(name = "KAZ_ID")
@@ -47,7 +47,7 @@ class Client(
     @Column(name = "APARTMENT")
     val apartment: String?,
 
-    @Column(name = "BUILDING")
+    @Column(name = "BUILDINGS")
     val building: String?,
 
     @Column(name = "CITY")
@@ -81,7 +81,7 @@ class Client(
     @Column(name = "DOCUMENT_ISSUER")
     val documentIssuer: String?,
 
-    @Column(name = "DOCUMENT_ISSUER_DEPARTMENT_CODE")
+    @Column(name = "D_ISSUER_D_CODE")
     val documentIssuerDepartmentCode: String?,
 
     @Column(name = "DOCUMENT_ISSUE_DATE")

@@ -16,7 +16,7 @@ import java.util.*
 
 @RestController
 @Validated
-class OperationController( //private val trnService: TrnService,
+class OperationController(
     private val unistreamService: UnistreamService,
     private val clientService: ClientService
 ) {
@@ -40,21 +40,31 @@ class OperationController( //private val trnService: TrnService,
                         id = requestId
                     )
                 "cashtocard" -> {
-                    // 1. проверяем наличие клиента
-                    var clientId = clientService.getClientUIDifClientExist(unistreamService, requestBody)
+                    // 1. проверяем наличие клиента в АБС (если нет, будет выброшено исключение)
+                    val client = clientService.getClientById(requestBody)
+
+                    // 2. проверяем наличие клиента в Unistream
+                    var clientId = clientService.getClientUIDifClientExist(
+                        unistreamService = unistreamService,
+                        docSerNo = client.documentSeries+client.documentNumber)
+
                     // 2. если клиента нет, регистрируем
                     if (clientId.isEmpty()) {
-                        clientId = clientService.registerClient(unistreamService,requestBody)
+                        clientId = clientService.registerClient(
+                            unistreamService = unistreamService,
+                            client = client)
                     }
+
                     // 3. модифицируем запрос (необходимо вставить clientUid)
-                    val requestWithClientID = clientService.setClientUIDIntoRequest(
+                    val requestWithClientID = clientService.setNewClientContextIntoRequest(
                         cardToCardRequest = requestBody,
-                        clientId = clientId
+                        client = client,
+                        newClientUid = clientId
                     )
+
                     // 4. регистрируем операцию
                     rrrr = unistreamService.toUnistreamOperation(
                         urlOperation = "/v2/operations/cashtocard/$requestId",
-//                        id = requestId,
                         req = requestWithClientID,
                         httpMethod = "post"
                     )
@@ -62,7 +72,6 @@ class OperationController( //private val trnService: TrnService,
                 "status" ->
                     rrrr = unistreamService.toUnistreamOperation(
                         urlOperation = "/v2/operations/$requestId",
-//                        id = requestId,
                         req = requestBody,
                         httpMethod = "get"
                     )
@@ -79,18 +88,6 @@ class OperationController( //private val trnService: TrnService,
             log.error("cashToCardRegister exception", e)
             return ResponseEntity.ok(e)
         }
-
-//        val trn = trnService.registerTrn(request = cashToCardRegisterRequest)
-//        if(trn.status == TrnStatus.New){
-//            unistreamService.cashToCard(
-//                id = cashToCardRegisterRequest.requestUid,
-//                req = cashToCardRegisterRequest,
-//                xUnistreamSecurityPosId = "596669"
-//            )
-//        }
-//
-//        log.debug("result call registerTransaction trn ={}", trn)
-//        return ResponseEntity.ok(trn)
     }
 
 

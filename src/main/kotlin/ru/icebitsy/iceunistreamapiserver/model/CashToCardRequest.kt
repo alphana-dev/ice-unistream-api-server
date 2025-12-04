@@ -1,14 +1,16 @@
 package ru.icebitsy.iceunistreamapiserver.model
 
+import com.fasterxml.jackson.annotation.JsonInclude
 import com.fasterxml.jackson.annotation.JsonProperty
 
-
+@JsonInclude(JsonInclude.Include.NON_NULL)
 data class CashToCardRequest(
-    val clientContext: ClientContextDto? = null,
+    var cusNum: String? = null,
+    var clientContext: ClientContext? = null,
     val data: DataDto? = null
 )
 
-data class ClientContextDto(
+data class ClientContext(
     var clientId: String? = null,
     val documents: List<String>? = null
 )
