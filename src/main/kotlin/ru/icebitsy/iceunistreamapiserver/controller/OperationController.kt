@@ -48,21 +48,21 @@ class OperationController(
                         unistreamService = unistreamService,
                         docSerNo = client.documentSeries+client.documentNumber)
 
-                    // 2. если клиента нет, регистрируем
+                    // 3. если клиента нет, регистрируем
                     if (clientId.isEmpty()) {
                         clientId = clientService.registerClient(
                             unistreamService = unistreamService,
                             client = client)
                     }
 
-                    // 3. модифицируем запрос (необходимо вставить clientUid)
+                    // 4. модифицируем запрос (необходимо вставить clientUid)
                     val requestWithClientID = clientService.setNewClientContextIntoRequest(
                         cardToCardRequest = requestBody,
                         client = client,
                         newClientUid = clientId
                     )
 
-                    // 4. регистрируем операцию
+                    // 5. регистрируем операцию
                     rrrr = unistreamService.toUnistreamOperation(
                         urlOperation = "/v2/operations/cashtocard/$requestId",
                         req = requestWithClientID,
