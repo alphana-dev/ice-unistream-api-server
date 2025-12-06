@@ -3,6 +3,14 @@ package ru.icebitsy.iceunistreamapiserver.model
 import com.fasterxml.jackson.annotation.JsonProperty
 
 data class ClientSearchResponse(
+    val items: List<ItemDto>? = null,
+    val page: Int? = null,
+    val totalPages: Int? = null,
+    val totalCount: Int? = null,
+    val errorMessage: String? = null
+)
+
+data class ItemDto(
     val documents: List<DocumentDto>? = null,
     val confidants: List<Any>? = null,
     val id: String? = null,
@@ -19,6 +27,7 @@ data class ClientSearchResponse(
     val loyaltyCardNumber: String? = null,
     val kazId: String? = null
 )
+
 
 data class DocumentDto(
     val type: String? = null,

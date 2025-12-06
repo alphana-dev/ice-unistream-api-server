@@ -4,11 +4,14 @@ import jakarta.persistence.*
 import java.time.LocalDateTime
 
 @Entity
-@Table(name = "ICE_UNISTREAM_CLIENTS", schema = "XXI")
+@Table(name = "ISIMPLE_OV_UNIS_CLIENTS", schema = "XXI")
 class Client(
     @Id
-    @Column(name = "CLIENT_ID")
-    val clientId: String, // уникальный идентификатор клиента (для Unistream)
+    @Column(name = "CUSNUM")
+    val cusNum: Long, // уникальный идентификатор клиента в АБС
+
+    @Column(name = "UNIS_CLIENT_ID")
+    val unisClientId: String, // уникальный идентификатор клиента (для Unistream)
 
     @Column(name = "COUNTRY_OF_RESIDENCE")
     val countryOfResidence: String?, // ISO-код страны
@@ -96,4 +99,5 @@ class Client(
     @Column(name = "CREATE_DATE")
     val createDate: LocalDateTime = LocalDateTime.now()
 )
+
 

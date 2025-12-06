@@ -12,6 +12,6 @@ interface ClientRepository : JpaRepository<Client, String> {
      * @param clientId уникальный идентификатор клиента
      * @return найденный клиент или null
      */
-    fun findByClientId(clientId: String): Client?
+    fun findByCusNum(cusNum: Long): Client?
 }
 

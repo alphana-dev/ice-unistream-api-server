@@ -34,7 +34,7 @@ class ClientMapper {
         }
 
         return ClientContext(
-            clientId = client.clientId,
+            clientId = client.unisClientId,
             documents = documents.takeIf { it.isNotEmpty() }
         )
     }
@@ -44,7 +44,7 @@ class ClientMapper {
      * @param client Entity клиента из БД
      * @return ClientRegisterRequest для регистрации клиента в Unistream API
      */
-    fun toClientRegisterRequest(client: Client): ClientRegisterRequest {
+    fun toClientRegisterRequest(client: Client, newId : String, gender: String): ClientRegisterRequest {
         // Преобразование адреса
         val address = if (client.addressString != null || client.city != null || client.street != null) {
             Address(
@@ -79,12 +79,12 @@ class ClientMapper {
         } else null
 
         return ClientRegisterRequest(
-            id = client.clientId,
+            id = newId,
             countryOfResidence = client.countryOfResidence,
             firstName = client.firstName,
             lastName = client.lastName,
             middleName = client.middleName,
-            gender = client.gender,
+            gender = gender,
             birthPlace = client.birthPlace,
             birthDate = client.birthDate,
             phoneNumber = client.phoneNumber,

@@ -9,6 +9,7 @@ import ru.icebitsy.iceunistreamapiserver.exception.ResourceNotFoundException
 import ru.icebitsy.iceunistreamapiserver.mapper.ClientMapper
 import ru.icebitsy.iceunistreamapiserver.model.*
 import ru.icebitsy.iceunistreamapiserver.repository.ClientRepository
+import java.util.UUID
 
 @Service
 class ClientService(
@@ -42,7 +43,13 @@ class ClientService(
      */
     fun registerClient(unistreamService: UnistreamService, client: Client): String {
         // Преобразуем Entity в ClientRegisterRequest
-        val clientRegisterRequest = clientMapper.toClientRegisterRequest(client)
+        val newId = UUID.randomUUID().toString()
+        val gender = if (client.gender == "0") {
+            "Male"
+        } else {
+            "Female"
+        }
+        val clientRegisterRequest = clientMapper.toClientRegisterRequest(client, newId, gender)
 
         // Регистрируем клиента через Unistream API
         val requestBody = objectMapper.writeValueAsString(clientRegisterRequest)
@@ -91,17 +98,19 @@ class ClientService(
      * @param cardToCardRequestJson JSON строка с запросом CashToCardRequest
      * @return найденный клиент или исключение
      */
-    fun getClientById(cardToCardRequestJson: String): Client {
+    fun getClientById(req: CashToCardRequest): Client {
         return try {
-            val req = objectMapper.readValue(cardToCardRequestJson, CashToCardRequest::class.java)
+//            val req = objectMapper.readValue(cardToCardRequestJson, CashToCardRequest::class.java)
+
             val cusNum = req.cusNum
-                ?: throw IllegalArgumentException("cusNum is null in request: $cardToCardRequestJson")
-            clientRepository.findByClientId(cusNum)
+                ?: throw IllegalArgumentException("cusNum is null in request")
+
+            clientRepository.findByCusNum(cusNum)
                 ?: throw ResourceNotFoundException(
                     "Клиент с clientId=$cusNum не найден в БД"
                 )
         } catch (e: Exception) {
-            log.error("Ошибка получения Client из запроса. cardToCardRequest=$cardToCardRequestJson", e)
+            log.error("Ошибка получения Client из запроса. cardToCardRequest", e)
             throw e
         }
     }
@@ -109,7 +118,17 @@ class ClientService(
     private fun getClientUID(response: String): String {
         return try {
             val clientSearchResponse = objectMapper.readValue(response, ClientSearchResponse::class.java)
-            clientSearchResponse.id!!
+            if(clientSearchResponse.totalCount != 1) {
+                val foundCount = clientSearchResponse.totalCount;
+                throw RuntimeException("Число найденных клиентов не равно 1 а равно $foundCount ")
+            }
+
+            val clientId: String? = clientSearchResponse.items
+                ?.getOrNull(0)
+                ?.id
+
+            clientId!!
+
         } catch (e: Exception) {
             log.error("Ошибка обработки запроса данных о клиенте. response=$response", e)
             throw RuntimeException(e)

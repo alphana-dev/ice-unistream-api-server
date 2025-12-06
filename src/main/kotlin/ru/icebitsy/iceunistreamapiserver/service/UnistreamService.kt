@@ -12,11 +12,14 @@ import ru.icebitsy.iceunistreamapiserver.client.UnistreamWebClient
 import ru.icebitsy.iceunistreamapiserver.config.UnistreamProperties
 import ru.icebitsy.iceunistreamapiserver.web.UnistreamOperation
 import java.io.File
+import java.net.URI
 import java.net.URLDecoder
 import java.nio.charset.StandardCharsets
 import java.security.MessageDigest
 import java.time.OffsetDateTime
+import java.time.ZoneId
 import java.time.ZoneOffset
+import java.time.ZonedDateTime
 import java.time.format.DateTimeFormatter
 import java.util.*
 import javax.crypto.Mac
@@ -100,6 +103,8 @@ class UnistreamService(
 
         val relativeUri = urlOperation.removePrefix("/")
 
+        log.info("relativeUri {} <- {}" , relativeUri, urlOperation)
+
         val response = when (method) {
             "POST" -> api.unistreamOperationPost(
                 urlOperation = relativeUri,
@@ -111,7 +116,7 @@ class UnistreamService(
             )
 
             "GET" -> api.unistreamOperationGet(
-                urlOperation = relativeUri,
+                uri = URI( unistreamProperties.baseUrl + urlOperation),
                 date = date,
                 posId = unistreamProperties.posId,
                 contentMd5 = "",
@@ -208,13 +213,27 @@ class UnistreamService(
         log.info("stringToSign: {}", stringToSign)
 
         val signature = sign(stringToSign)
+        log.info("sign: {}", signature)
+
         val authorization = "UNIHMAC ${unistreamProperties.appId}:$signature"
+        log.info("authorization: {}", authorization)
 
         return Triple(date, contentMd5, authorization)
     }
 
-    private fun nowRfc1123(): String =
-        OffsetDateTime.now(ZoneOffset.UTC).format(DateTimeFormatter.RFC_1123_DATE_TIME)
+    private fun nowRfc1123(): String {
+//        OffsetDateTime.now(ZoneOffset.UTC).format(DateTimeFormatter.RFC_1123_DATE_TIME)
+
+        val zonedDateTime: ZonedDateTime = ZonedDateTime.now(ZoneId.of("GMT"))
+
+        val customFormatter: DateTimeFormatter = DateTimeFormatter.ofPattern(
+            "EEE, dd MMM yyyy HH:mm:ss z",
+            Locale.US // Важно для RFC-подобных форматов
+        )
+
+        return zonedDateTime.format(customFormatter);
+
+    }
 
     private fun canonicalPath(path: String): String =
         URLDecoder.decode(path, StandardCharsets.UTF_8)

@@ -5,7 +5,7 @@ import com.fasterxml.jackson.annotation.JsonProperty
 
 @JsonInclude(JsonInclude.Include.NON_NULL)
 data class CashToCardRequest(
-    var cusNum: String? = null,
+    var cusNum: Long? = null,
     var clientContext: ClientContext? = null,
     val data: DataDto? = null
 )
