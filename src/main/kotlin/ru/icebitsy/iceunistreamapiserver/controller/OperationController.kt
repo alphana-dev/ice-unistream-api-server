@@ -9,7 +9,6 @@ import org.springframework.web.bind.annotation.PathVariable
 import org.springframework.web.bind.annotation.PostMapping
 import org.springframework.web.bind.annotation.RequestBody
 import org.springframework.web.bind.annotation.RestController
-import org.springframework.web.reactive.function.client.WebClientResponseException
 import ru.icebitsy.iceunistreamapiserver.service.CashToCardService
 import ru.icebitsy.iceunistreamapiserver.service.UnistreamService
 import java.util.*
@@ -23,49 +22,38 @@ class OperationController(
 
     /**
      * Регистрация операции перевода карта-карта
+     * @param requestId уникальный идентификатор запроса
+     * @param operation тип операции (confirm, cashtocard, status)
+     * @param requestBody тело запроса в формате JSON
+     * @return ResponseEntity с результатом операции или ошибкой
      */
     @PostMapping("/{requestId}/{operation}")
     fun operationRegister(
         @PathVariable requestId: UUID,
         @PathVariable operation: String,
         @Valid @RequestBody requestBody: String
-    ) : ResponseEntity<Any> {
+    ): ResponseEntity<Any> {
         log.info("call $requestId $operation body = $requestBody")
 
-        try {
-            val rrrr: String
-            when (operation) {
-                "confirm" -> rrrr = unistreamService.confirmOperation(
-                    id = requestId
-                )
+        val result: String = when (operation) {
+            "confirm" -> unistreamService.confirmOperation(id = requestId)
 
-                "cashtocard" -> {
-                    rrrr = cashToCardService.registerCashToCardOperation(
-                        requestId = requestId,
-                        requestBody = requestBody
-                    )
-                }
+            "cashtocard" -> cashToCardService.registerCashToCardOperation(
+                requestId = requestId,
+                requestBody = requestBody
+            )
 
-                "status" ->
-                    rrrr = unistreamService.toUnistreamOperation(
-                        urlOperation = "/v2/operations/$requestId",
-                        req = requestBody,
-                        httpMethod = "get"
-                    )
+            "status" -> unistreamService.toUnistreamOperation(
+                urlOperation = "/v2/operations/$requestId",
+                req = requestBody,
+                httpMethod = "get"
+            )
 
-                else -> throw IllegalArgumentException("Unsupported operation: $operation")
-
-            }
-            log.info("rrrrr = $rrrr")
-            return ResponseEntity.ok(rrrr)
-        } catch (re: WebClientResponseException) {
-            val errorMessage = re.responseBodyAsByteArray.decodeToString()
-            log.error(errorMessage, re)
-            return ResponseEntity.ok(errorMessage)
-        } catch (e: Exception) {
-            log.error("operationRegister exception", e)
-            return ResponseEntity.ok(e)
+            else -> throw IllegalArgumentException("Unsupported operation: $operation")
         }
+
+        log.info("Operation $operation completed successfully for requestId=$requestId")
+        return ResponseEntity.ok(result)
     }
 
 

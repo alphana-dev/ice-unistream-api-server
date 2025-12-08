@@ -9,7 +9,7 @@ plugins {
 }
 
 group = 'ru.icebitsy.unistreamapiserver'
-version = '0.0.1-SNAPSHOT'
+version = '1.0.1-SNAPSHOT'
 description = 'unistream api server'
 
 java {
