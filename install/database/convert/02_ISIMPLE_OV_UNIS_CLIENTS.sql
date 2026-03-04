@@ -22,7 +22,7 @@ SELECT
     CAST(a.post_index AS VARCHAR2(20))   AS POSTCODE,
     CAST(a.reg_name AS VARCHAR2(100))    AS STATE,
     CAST(a.infr_name AS VARCHAR2(255))   AS STREET,
-    CAST(DECODE(d.id_doc_tp, 1, 'ForeingPassport.RUS', 21, 'ForeingPassport.RUS', 55, 'Passport.ABH', '???') AS VARCHAR2(50)) AS DOCUMENT_TYPE,
+    CAST(DECODE(d.id_doc_tp, 1, 'Passport.RUS', 21, 'ForeingPassport.RUS', 55, 'Passport.ABH', '???') AS VARCHAR2(50)) AS DOCUMENT_TYPE,
     CAST(d.doc_ser AS VARCHAR2(20))      AS DOCUMENT_SERIES,
     CAST(d.doc_num AS VARCHAR2(20))      AS DOCUMENT_NUMBER,
     CAST(d.doc_agency AS VARCHAR2(255))  AS DOCUMENT_ISSUER,
