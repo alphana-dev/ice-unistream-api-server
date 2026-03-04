@@ -44,5 +44,10 @@ data class DataDto(
     val operationPurpose: String? = null,
 
     @JsonProperty("OperationAim")
-    val operationAim: String? = null
+    val operationAim: String? = null,
+
+    @JsonProperty("AmountType")
+    val amountType: String? = null
+
+
 )

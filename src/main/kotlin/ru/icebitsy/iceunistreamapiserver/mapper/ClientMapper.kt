@@ -26,7 +26,7 @@ class ClientMapper {
             client.documentSeries.isNotEmpty() &&
             client.documentNumber.isNotEmpty()
         ) {
-            val documentString = "Passport.${client.documentType}.${client.documentSeries}${client.documentNumber}"
+            val documentString = "${client.documentType}.${client.documentSeries}${client.documentNumber}"
             listOf(documentString)
         } else {
             throw ResourceNotFoundException("Недостаточно данных для формирования документов клиента. $client")
