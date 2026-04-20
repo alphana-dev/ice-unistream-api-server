@@ -102,12 +102,14 @@ class UnistreamService(
             buildAuth(method, urlOperation, if (method == "POST") req else null)
 
         val relativeUri = urlOperation.removePrefix("/")
-
+        val fullUri = URI.create("${unistreamProperties.baseUrl.trimEnd('/')}/$relativeUri")
+        log.info("fullUri {}", fullUri)
         log.info("relativeUri {} <- {}" , relativeUri, urlOperation)
 
         val response = when (method) {
             "POST" -> api.unistreamOperationPost(
-                urlOperation = relativeUri,
+                uri = fullUri,
+//                urlOperation = relativeUri,
                 body = req,
                 date = date,
                 posId = unistreamProperties.posId,
