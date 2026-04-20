@@ -3,7 +3,6 @@ package ru.icebitsy.iceunistreamapiserver.client
 import org.springframework.web.bind.annotation.PathVariable
 import org.springframework.web.bind.annotation.RequestBody
 import org.springframework.web.bind.annotation.RequestHeader
-import org.springframework.web.bind.annotation.RequestParam
 import org.springframework.web.service.annotation.GetExchange
 import org.springframework.web.service.annotation.HttpExchange
 import org.springframework.web.service.annotation.PostExchange
@@ -15,7 +14,8 @@ interface UnistreamWebClient {
 
     @PostExchange("{urlOperation}", contentType = "application/json")
     fun unistreamOperationPost(
-        @PathVariable urlOperation: String,
+        //@PathVariable urlOperation: String,
+        uri: URI,
         @RequestBody body: String,
         @RequestHeader("Date") date: String,
         @RequestHeader("X-Unistream-Security-PosId") posId: String,
