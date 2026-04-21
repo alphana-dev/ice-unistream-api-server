@@ -39,7 +39,8 @@ interface UnistreamWebClient {
 
     @GetExchange("{relativeUri}")
     fun downloadFile(
-        @PathVariable relativeUri: String,
+        uri: URI,
+//        @PathVariable relativeUri: String,
         @RequestHeader("Date") date: String,
         @RequestHeader("X-Unistream-Security-PosId") posId: String,
         @RequestHeader("CONTENT-MD5") contentMd5: String,

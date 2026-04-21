@@ -16,15 +16,12 @@ import java.net.URI
 import java.net.URLDecoder
 import java.nio.charset.StandardCharsets
 import java.security.MessageDigest
-import java.time.OffsetDateTime
 import java.time.ZoneId
-import java.time.ZoneOffset
 import java.time.ZonedDateTime
 import java.time.format.DateTimeFormatter
 import java.util.*
 import javax.crypto.Mac
 import javax.crypto.spec.SecretKeySpec
-
 
 
 @Service
@@ -118,7 +115,7 @@ class UnistreamService(
             )
 
             "GET" -> api.unistreamOperationGet(
-                uri = URI( unistreamProperties.baseUrl + urlOperation),
+                uri = fullUri, // URI( unistreamProperties.baseUrl + urlOperation),
                 date = date,
                 posId = unistreamProperties.posId,
                 contentMd5 = "",
@@ -182,8 +179,14 @@ class UnistreamService(
         val method = "GET"
         val (date, contentMd5, authorization) = buildAuth(method, signDocumentPath, null)
 
+        val relativeUri = signDocumentPath.removePrefix("/")
+        val fullUri = URI.create(relativeUri)
+
+        log.info("fullUri {}", fullUri)
+
         return api.downloadFile(
-            relativeUri = signDocumentPath.removePrefix("/"),
+            fullUri,
+//            relativeUri = signDocumentPath.removePrefix("/"),
             date = date,
             posId = unistreamProperties.posId,
             contentMd5 = contentMd5,
