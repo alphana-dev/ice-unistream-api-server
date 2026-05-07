@@ -180,7 +180,7 @@ class UnistreamService(
         val (date, contentMd5, authorization) = buildAuth(method, signDocumentPath, null)
 
         val relativeUri = signDocumentPath.removePrefix("/")
-        val fullUri = URI.create(relativeUri)
+        val fullUri = URI.create("${unistreamProperties.baseUrl.trimEnd('/')}/$relativeUri")
 
         log.info("fullUri {}", fullUri)
 
